@@ -50,42 +50,43 @@ def run_code():
         
 
         # loop through the df and get the cwe_id and cwe_name
-        count = 0
-        for index, row in df.iterrows():
-            if count == number_of_response_cve:
-                break
-            # print(row['mitre_link'])
-            URL = row['nvd_link']
-            headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"}
-            print("reached here")
-            page = requests.get(URL,headers=headers)
-            print("reached here2")
-            soup = BeautifulSoup(page.content, 'html.parser')
-            results = soup.find(id='vulnTechnicalDetailsDiv')
-            
-            cwe = results.text
-            # remove spaces from cwe
-            # cwe = cwe.replace(" ", "")
-            # split where newline
-            cwe = cwe.splitlines()
-            # remove empty strings
-            
-            cwe = list(filter(None, cwe))
-            print(cwe)
-            cweName = cwe[-2]
-            cweId = cwe[-3]
-            # print(cweId)
-            # print(cweName)
-            # make the new link
-            cweLink = "https://cwe.mitre.org/data/definitions/" + cweId[4:] + ".html"
-            
-            # add new columns to df for cweName,cweId and cweLink
-            df.loc[index, 'cweName'] = cweName
-            df.loc[index, 'cweId'] = cweId
-            df.loc[index, 'cweLink'] = cweLink
+        if show_cwe_details:
+            count = 0
+            for index, row in df.iterrows():
+                if count == number_of_response_cve:
+                    break
+                # print(row['mitre_link'])
+                URL = row['nvd_link']
+                headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"}
+                print("reached here")
+                page = requests.get(URL,headers=headers)
+                print("reached here2")
+                soup = BeautifulSoup(page.content, 'html.parser')
+                results = soup.find(id='vulnTechnicalDetailsDiv')
+                
+                cwe = results.text
+                # remove spaces from cwe
+                # cwe = cwe.replace(" ", "")
+                # split where newline
+                cwe = cwe.splitlines()
+                # remove empty strings
+                
+                cwe = list(filter(None, cwe))
+                print(cwe)
+                cweName = cwe[-2]
+                cweId = cwe[-3]
+                # print(cweId)
+                # print(cweName)
+                # make the new link
+                cweLink = "https://cwe.mitre.org/data/definitions/" + cweId[4:] + ".html"
+                
+                # add new columns to df for cweName,cweId and cweLink
+                df.loc[index, 'cweName'] = cweName
+                df.loc[index, 'cweId'] = cweId
+                df.loc[index, 'cweLink'] = cweLink
 
 
-            count += 1
+                count += 1
 
 
         if show_distance == False:
@@ -106,11 +107,7 @@ def run_code():
         else:
             pass
 
-        if show_cwe_details == False:
-            # delete cweName,cweId and cweLink columns
-            df = df.drop(['cweName','cweId','cweLink'], axis=1)
-        else:
-            pass
+        
 
 
         output = df.head(number_of_response_cve)
